@@ -16,7 +16,7 @@ module "vmss2" {
   subscription_id = var.subscriptionId
 
   # Basic configuration
-  vmss_name           = "labvmssup-${var.envId}-vmss2"
+  vmss_name           = "labvmssup-${var.envId}-vmss2b"
   resource_group_name = "labvmssup-vmss2"
   location            = "westeurope"
 
@@ -36,7 +36,7 @@ module "vmss2" {
 
   # CME management (same management server as vmss1)
   management_name             = "mgmt"
-  management_IP               = "13.92.42.181"
+  management_IP               = "20.123.194.231"
   management_interface        = "eth0-public"
   configuration_template_name = "labvmssup_r82_template"
 

@@ -36,7 +36,7 @@ module "example_module" {
 
   # Management Variables
   management_name      = "mgmt"
-  management_IP        = "13.92.42.181"
+  management_IP        = "20.123.194.231"
   management_interface = "eth0-public"
 
   # Networking Variables
