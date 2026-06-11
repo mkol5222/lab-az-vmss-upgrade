@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azure Network Diagram — labvmssup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+
+  header {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-bottom: 2px solid #0078d4;
+    padding: 18px 32px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  header .logo { font-size: 22px; font-weight: 700; color: #0078d4; letter-spacing: 1px; }
+  header .sub  { font-size: 13px; color: #94a3b8; }
+
+  .diagram-wrap { padding: 28px 24px 40px; overflow-x: auto; }
+
+  /* ── SVG canvas ── */
+  #canvas { display: block; margin: 0 auto; }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 18px;
+    padding: 20px 32px;
+    border-top: 1px solid #1e293b;
+    font-size: 12px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 7px; }
+  .legend-swatch { width: 18px; height: 18px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0; }
+
+  /* ── Info table ── */
+  .info-section { padding: 0 32px 40px; }
+  .info-section h2 { font-size: 15px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; border-bottom: 1px solid #1e293b; padding-bottom: 8px; }
+  .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+  .info-card { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 16px; }
+  .info-card h3 { font-size: 13px; font-weight: 700; color: #38bdf8; margin-bottom: 10px; }
+  .info-card table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .info-card td { padding: 4px 6px; vertical-align: top; }
+  .info-card td:first-child { color: #94a3b8; white-space: nowrap; padding-right: 12px; }
+  .info-card td:last-child { color: #e2e8f0; font-family: 'Consolas', monospace; }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .tag-blue  { background: #1d4ed8; color: #bfdbfe; }
+  .tag-green { background: #166534; color: #bbf7d0; }
+  .tag-orange{ background: #92400e; color: #fde68a; }
+  .tag-purple{ background: #6b21a8; color: #e9d5ff; }
+  .tag-red   { background: #7f1d1d; color: #fecaca; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">&#9632; Check Point — Azure VMSS Lab</div>
+    <div class="sub">Network Infrastructure Diagram &nbsp;|&nbsp; labvmssup &nbsp;|&nbsp; West Europe &nbsp;|&nbsp; Generated 2026-06-11</div>
+  </div>
+</header>
+
+<div class="diagram-wrap">
+<svg id="canvas" width="1180" height="980" viewBox="0 0 1180 980" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <!-- Arrowheads -->
+  <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#64748b"/>
+  </marker>
+  <marker id="arr-blue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#0078d4"/>
+  </marker>
+  <marker id="arr-orange" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#f97316"/>
+  </marker>
+  <marker id="arr-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#22c55e"/>
+  </marker>
+  <marker id="arr-purple" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+    <polygon points="0 0, 8 3, 0 6" fill="#a855f7"/>
+  </marker>
+
+  <!-- Grid pattern -->
+  <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+  </pattern>
+
+  <!-- Filters -->
+  <filter id="glow">
+    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+    <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="shadow">
+    <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.5"/>
+  </filter>
+</defs>
+
+<!-- Background -->
+<rect width="1180" height="980" fill="#0f1117"/>
+<rect width="1180" height="980" fill="url(#grid)"/>
+
+<!-- ═══════════════════════════════════════════════════════
+     INTERNET
+═══════════════════════════════════════════════════════ -->
+<g id="internet">
+  <!-- Cloud shape -->
+  <ellipse cx="590" cy="42" rx="100" ry="28" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+  <ellipse cx="530" cy="48" rx="60" ry="22" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+  <ellipse cx="650" cy="48" rx="60" ry="22" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+  <rect x="480" y="50" width="220" height="20" fill="#1e293b"/>
+  <text x="590" y="55" text-anchor="middle" font-size="13" font-weight="700" fill="#94a3b8">INTERNET</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════
+     PUBLIC IP + FRONTEND LOAD BALANCER (VMSS1)
+═══════════════════════════════════════════════════════ -->
+<!-- Line from internet down -->
+<line x1="590" y1="68" x2="590" y2="108" stroke="#0078d4" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arr-blue)"/>
+
+<!-- Public IP box -->
+<g id="pip">
+  <rect x="488" y="110" width="204" height="44" rx="6" fill="#1d3a5f" stroke="#0078d4" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="496" y="128" font-size="10" fill="#7dd3fc">PUBLIC IP  (Static / Standard SKU)</text>
+  <text x="496" y="145" font-size="11" font-weight="600" fill="#e2e8f0" font-family="Consolas">labvmssup-*-vmss1-app-1</text>
+</g>
+
+<!-- Line pip → frontend LB -->
+<line x1="590" y1="154" x2="590" y2="189" stroke="#0078d4" stroke-width="2" marker-end="url(#arr-blue)"/>
+
+<!-- Frontend LB box -->
+<g id="frontend-lb">
+  <rect x="452" y="190" width="276" height="56" rx="6" fill="#1d3a5f" stroke="#0078d4" stroke-width="2" filter="url(#shadow)"/>
+  <text x="590" y="212" text-anchor="middle" font-size="10" fill="#7dd3fc">FRONTEND LOAD BALANCER  (Public / Standard SKU)</text>
+  <text x="590" y="229" text-anchor="middle" font-size="11" font-weight="700" fill="#e2e8f0">frontend-lb</text>
+  <text x="590" y="243" text-anchor="middle" font-size="10" fill="#94a3b8">TCP:8117  |  Floating IP enabled  |  Probe: TCP:8117</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════
+     MAIN VNET BOX  10.101.0.0/16
+═══════════════════════════════════════════════════════ -->
+<g id="vnet-main">
+  <rect x="36" y="290" width="820" height="640" rx="10" fill="none" stroke="#0078d4" stroke-width="2.5" stroke-dasharray="8,4" filter="url(#shadow)"/>
+  <rect x="36" y="290" width="820" height="30" rx="10" fill="#0f2744"/>
+  <!-- Only round top corners visually -->
+  <rect x="36" y="310" width="820" height="10" fill="#0f2744"/>
+  <text x="56" y="311" font-size="13" font-weight="700" fill="#38bdf8">VNet: labvmssup-vnet</text>
+  <text x="340" y="311" font-size="12" fill="#64748b" font-family="Consolas">10.101.0.0/16  |  West Europe  |  RG: labvmssup-vmss1</text>
+</g>
+
+<!-- NSG badge on right side of vnet -->
+<rect x="794" y="338" width="52" height="52" rx="6" fill="#1e1a2e" stroke="#a855f7" stroke-width="1.5"/>
+<text x="820" y="358" text-anchor="middle" font-size="9" fill="#a855f7">NSG</text>
+<text x="820" y="370" text-anchor="middle" font-size="8" fill="#d8b4fe" font-family="Consolas">vmss1-nsg</text>
+<text x="820" y="381" text-anchor="middle" font-size="8" fill="#94a3b8">Frontend+</text>
+<text x="820" y="391" text-anchor="middle" font-size="8" fill="#94a3b8">Backend</text>
+
+<!-- ── FRONTEND SUBNET ─────────────────────────────────── -->
+<g id="subnet-frontend">
+  <rect x="56" y="335" width="730" height="160" rx="7" fill="#0d1f35" stroke="#1d6fa4" stroke-width="1.5"/>
+  <text x="72" y="356" font-size="11" font-weight="700" fill="#38bdf8">Subnet: Frontend</text>
+  <text x="200" y="356" font-size="11" fill="#64748b" font-family="Consolas">10.101.1.0/24</text>
+  <!-- Route table tag -->
+  <rect x="510" y="342" width="120" height="20" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="516" y="355" font-size="10" fill="#94a3b8">RT: Frontend  →  VNetPeering (10.101.0.0/16)</text>
+</g>
+
+<!-- VMSS1 in Frontend subnet -->
+<g id="vmss1-fe">
+  <rect x="76" y="368" width="230" height="110" rx="7" fill="#112240" stroke="#0ea5e9" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="76" y="368" width="230" height="26" rx="7" fill="#1d4ed8"/>
+  <rect x="76" y="382" width="230" height="12" fill="#1d4ed8"/>
+  <text x="191" y="385" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">VMSS1  —  R8120 CloudGuard</text>
+  <text x="191" y="402" text-anchor="middle" font-size="10" fill="#94a3b8">Standard_D4ds_v5  |  sg-byol  |  200 GB</text>
+  <text x="191" y="418" text-anchor="middle" font-size="10" fill="#7dd3fc">Instances: 2–3  |  AZ: 1,2,3</text>
+  <text x="86" y="434" font-size="10" fill="#94a3b8">eth0 (Frontend NIC):</text>
+  <text x="86" y="448" font-size="10" fill="#38bdf8" font-family="Consolas">  Dynamic / 10.101.1.0/24</text>
+  <text x="86" y="462" font-size="10" fill="#94a3b8">LB Pool: frontend-lb / vmss1-app-1</text>
+  <text x="86" y="476" font-size="10" fill="#94a3b8">SIC key: 12345678123456</text>
+</g>
+
+<!-- VMSS2 in Frontend subnet -->
+<g id="vmss2-fe">
+  <rect x="346" y="368" width="230" height="110" rx="7" fill="#1a1230" stroke="#a855f7" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="346" y="368" width="230" height="26" rx="7" fill="#7c3aed"/>
+  <rect x="346" y="382" width="230" height="12" fill="#7c3aed"/>
+  <text x="461" y="385" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">VMSS2  —  R82 CloudGuard</text>
+  <text x="461" y="402" text-anchor="middle" font-size="10" fill="#94a3b8">Standard_D4ds_v5  |  sg-byol  |  200 GB</text>
+  <text x="461" y="418" text-anchor="middle" font-size="10" fill="#c4b5fd">Instances: 2–3  |  AZ: 1,2,3</text>
+  <text x="356" y="434" font-size="10" fill="#94a3b8">eth0 (Frontend NIC):</text>
+  <text x="356" y="448" font-size="10" fill="#c4b5fd" font-family="Consolas">  Dynamic / 10.101.1.0/24</text>
+  <text x="356" y="462" font-size="10" fill="#94a3b8">LB Pool: vmss1 frontend-lb (shared)</text>
+  <text x="356" y="476" font-size="10" fill="#94a3b8">SIC key: 12345678123456</text>
+</g>
+
+<!-- LB → VMSS1 Frontend arrow -->
+<line x1="500" y1="246" x2="260" y2="368" stroke="#0078d4" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-blue)"/>
+<!-- LB → VMSS2 Frontend arrow -->
+<line x1="640" y1="246" x2="530" y2="368" stroke="#0078d4" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-blue)"/>
+
+<!-- ── BACKEND SUBNET ──────────────────────────────────── -->
+<g id="subnet-backend">
+  <rect x="56" y="515" width="730" height="180" rx="7" fill="#0d1f35" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="72" y="536" font-size="11" font-weight="700" fill="#4ade80">Subnet: Backend</text>
+  <text x="192" y="536" font-size="11" fill="#64748b" font-family="Consolas">10.101.2.0/24</text>
+  <!-- Route table tag -->
+  <rect x="510" y="522" width="148" height="20" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="516" y="535" font-size="10" fill="#94a3b8">RT: Backend  →  0.0.0.0/0 VNetPeering</text>
+</g>
+
+<!-- VMSS1 Backend NIC -->
+<g id="vmss1-be">
+  <rect x="76" y="548" width="200" height="70" rx="6" fill="#0d2d1a" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="176" y="565" text-anchor="middle" font-size="10" font-weight="700" fill="#4ade80">VMSS1 Backend NICs</text>
+  <text x="86" y="581" font-size="10" fill="#94a3b8">eth1:  Dynamic / 10.101.2.0/24</text>
+  <text x="86" y="595" font-size="10" fill="#94a3b8">LB Pool: backend-lb-pool</text>
+  <text x="86" y="609" font-size="10" fill="#94a3b8">Floating IP: enabled</text>
+</g>
+
+<!-- VMSS2 Backend NIC -->
+<g id="vmss2-be">
+  <rect x="346" y="548" width="200" height="70" rx="6" fill="#1a0d2d" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="446" y="565" text-anchor="middle" font-size="10" font-weight="700" fill="#c4b5fd">VMSS2 Backend NICs</text>
+  <text x="356" y="581" font-size="10" fill="#94a3b8">eth1:  Dynamic / 10.101.2.0/24</text>
+  <text x="356" y="595" font-size="10" fill="#94a3b8">LB Pool: backend-lb-pool</text>
+  <text x="356" y="609" font-size="10" fill="#94a3b8">Floating IP: enabled</text>
+</g>
+
+<!-- Internal LB — VMSS1 -->
+<g id="ilb-vmss1">
+  <rect x="76" y="630" width="200" height="50" rx="6" fill="#1a2e1a" stroke="#22c55e" stroke-width="2" filter="url(#shadow)"/>
+  <text x="176" y="648" text-anchor="middle" font-size="10" fill="#4ade80">Internal LB (VMSS1)</text>
+  <text x="176" y="662" text-anchor="middle" font-size="11" font-weight="700" fill="#e2e8f0" font-family="Consolas">backend-lb  10.101.2.4</text>
+  <text x="176" y="675" text-anchor="middle" font-size="10" fill="#94a3b8">Protocol: All  |  Floating IP: on</text>
+</g>
+
+<!-- Internal LB — VMSS2 -->
+<g id="ilb-vmss2">
+  <rect x="346" y="630" width="200" height="50" rx="6" fill="#1a0a2e" stroke="#a855f7" stroke-width="2" filter="url(#shadow)"/>
+  <text x="446" y="648" text-anchor="middle" font-size="10" fill="#c4b5fd">Internal LB (VMSS2)</text>
+  <text x="446" y="662" text-anchor="middle" font-size="11" font-weight="700" fill="#e2e8f0" font-family="Consolas">backend-lb  10.101.2.90</text>
+  <text x="446" y="675" text-anchor="middle" font-size="10" fill="#94a3b8">Protocol: All  |  Floating IP: on</text>
+</g>
+
+<!-- VMSS1 FE → BE vertical NIC line -->
+<line x1="191" y1="478" x2="176" y2="548" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arr-green)"/>
+<!-- VMSS2 FE → BE vertical NIC line -->
+<line x1="461" y1="478" x2="446" y2="548" stroke="#a855f7" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+
+<!-- VMSS1 BE NIC → Internal LB -->
+<line x1="176" y1="618" x2="176" y2="630" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arr-green)"/>
+<!-- VMSS2 BE NIC → Internal LB -->
+<line x1="446" y1="618" x2="446" y2="630" stroke="#a855f7" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+
+<!-- ── LINUX SUBNET ────────────────────────────────────── -->
+<g id="subnet-linux">
+  <rect x="56" y="715" width="730" height="190" rx="7" fill="#0d1f35" stroke="#f97316" stroke-width="1.5"/>
+  <text x="72" y="736" font-size="11" font-weight="700" fill="#fb923c">Subnet: linux-subnet</text>
+  <text x="212" y="736" font-size="11" fill="#64748b" font-family="Consolas">10.101.3.0/24</text>
+  <rect x="490" y="722" width="180" height="20" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="496" y="735" font-size="10" fill="#94a3b8">RT: workstation→Internet, default→var.gw</text>
+</g>
+
+<!-- Linux VM box -->
+<g id="linux-vm">
+  <rect x="76" y="748" width="280" height="138" rx="7" fill="#1a1200" stroke="#f97316" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="76" y="748" width="280" height="26" rx="7" fill="#c2410c"/>
+  <rect x="76" y="762" width="280" height="12" fill="#c2410c"/>
+  <text x="216" y="765" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">Linux Diagnostics VM  (Ubuntu 22.04 LTS)</text>
+  <text x="216" y="783" text-anchor="middle" font-size="10" fill="#94a3b8">Standard_B1s  |  RG: labvmssup-vmss1-linux</text>
+  <text x="86" y="800" font-size="10" fill="#94a3b8">NIC:</text>
+  <text x="86" y="814" font-size="10" fill="#fb923c" font-family="Consolas">  labvmssup-*-linux-nic</text>
+  <text x="86" y="828" font-size="10" fill="#94a3b8">  Private IP: Dynamic (10.101.3.x)</text>
+  <text x="86" y="842" font-size="10" fill="#94a3b8">Public IP:  labvmssup-*-linux-pip (Static)</text>
+  <text x="86" y="857" font-size="10" fill="#94a3b8">NSG:  AllowSSH inbound :22  from 0.0.0.0/0</text>
+  <text x="86" y="872" font-size="10" fill="#94a3b8">Gateway var: Internet | vmss1 | vmss2</text>
+  <text x="86" y="886" font-size="10" fill="#fb923c">Admin: azureuser  |  Boot diag: enabled</text>
+</g>
+
+<!-- Linux VM public IP arrow to internet (goes right then up) -->
+<path d="M 356 810 L 900 810 L 900 55 L 700 55" stroke="#f97316" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#arr-orange)"/>
+<text x="870" y="800" font-size="10" fill="#f97316" text-anchor="middle">Public IP</text>
+<text x="870" y="812" font-size="10" fill="#f97316" text-anchor="middle">SSH :22</text>
+
+<!-- ═══════════════════════════════════════════════════════
+     MANAGEMENT VNET  10.0.0.0/16
+═══════════════════════════════════════════════════════ -->
+<g id="vnet-mgmt">
+  <rect x="920" y="290" width="236" height="220" rx="10" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6,3" filter="url(#shadow)"/>
+  <rect x="920" y="290" width="236" height="30" rx="10" fill="#1c1500"/>
+  <rect x="920" y="310" width="236" height="10" fill="#1c1500"/>
+  <text x="936" y="311" font-size="12" font-weight="700" fill="#fbbf24">Mgmt VNet</text>
+  <text x="936" y="325" font-size="10" fill="#64748b" font-family="Consolas">10.0.0.0/16  |  RG: labvmmsup-management</text>
+</g>
+
+<!-- Mgmt subnet -->
+<rect x="936" y="338" width="204" height="30" rx="5" fill="#1c1500" stroke="#78350f" stroke-width="1"/>
+<text x="946" y="353" font-size="10" fill="#fbbf24">Subnet: management  10.0.1.0/24</text>
+<text x="946" y="365" font-size="10" fill="#64748b" font-family="Consolas">API access: all</text>
+
+<!-- cpman box -->
+<g id="cpman">
+  <rect x="936" y="380" width="204" height="110" rx="7" fill="#1c1000" stroke="#f59e0b" stroke-width="2" filter="url(#shadow)"/>
+  <rect x="936" y="380" width="204" height="24" rx="7" fill="#d97706"/>
+  <rect x="936" y="392" width="204" height="12" fill="#d97706"/>
+  <text x="1038" y="396" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">cpman  (R82 Management)</text>
+  <text x="1038" y="416" text-anchor="middle" font-size="10" fill="#94a3b8">Standard_D4ds_v5 | mgmt-byol</text>
+  <text x="946" y="432" font-size="10" fill="#94a3b8">Public IP:</text>
+  <text x="946" y="446" font-size="10" fill="#fbbf24" font-family="Consolas">  20.123.194.231</text>
+  <text x="946" y="460" font-size="10" fill="#94a3b8">Interface: eth0-public</text>
+  <text x="946" y="474" font-size="10" fill="#94a3b8">GUI client: 0.0.0.0/0</text>
+  <text x="946" y="488" font-size="10" fill="#94a3b8">TZ: Europe/Prague</text>
+</g>
+
+<!-- cpman → internet (top) -->
+<path d="M 1038 380 L 1038 240 L 730 70" stroke="#f59e0b" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+
+<!-- cpman SIC → VMSS1 management arrow -->
+<path d="M 936 430 L 860 430 L 860 430" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3" fill="none"/>
+<path d="M 860 430 L 860 420 L 640 420" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3" fill="none" marker-end="url(#arr)"/>
+<text x="870" y="426" font-size="9" fill="#fbbf24">SIC / Management</text>
+<text x="870" y="437" font-size="9" fill="#fbbf24">eth0-public → 20.123.194.231</text>
+
+<!-- ═══════════════════════════════════════════════════════
+     ROUTE TABLE annotations
+═══════════════════════════════════════════════════════ -->
+<!-- Route label at right side -->
+<g id="routes-panel">
+  <rect x="920" y="530" width="236" height="160" rx="8" fill="#111827" stroke="#374151" stroke-width="1.5"/>
+  <text x="930" y="549" font-size="11" font-weight="700" fill="#64748b">Route Tables</text>
+  <line x1="920" y1="554" x2="1156" y2="554" stroke="#374151" stroke-width="1"/>
+
+  <text x="930" y="570" font-size="10" font-weight="600" fill="#38bdf8">Frontend RT</text>
+  <text x="930" y="583" font-size="9" fill="#94a3b8" font-family="Consolas">Local-Subnet  10.101.1.0/24 → VnetLocal</text>
+  <text x="930" y="595" font-size="9" fill="#94a3b8" font-family="Consolas">To-Internal   10.101.0.0/16 → VNetPeering</text>
+
+  <line x1="920" y1="602" x2="1156" y2="602" stroke="#374151" stroke-width="0.5" stroke-dasharray="3,2"/>
+  <text x="930" y="616" font-size="10" font-weight="600" fill="#4ade80">Backend RT</text>
+  <text x="930" y="629" font-size="9" fill="#94a3b8" font-family="Consolas">To-Internet   0.0.0.0/0     → VNetPeering</text>
+
+  <line x1="920" y1="637" x2="1156" y2="637" stroke="#374151" stroke-width="0.5" stroke-dasharray="3,2"/>
+  <text x="930" y="651" font-size="10" font-weight="600" fill="#fb923c">Linux VM RT</text>
+  <text x="930" y="664" font-size="9" fill="#94a3b8" font-family="Consolas">workstation-ip  /32         → Internet</text>
+  <text x="930" y="676" font-size="9" fill="#94a3b8" font-family="Consolas">default   0.0.0.0/0         → var.gw</text>
+  <text x="930" y="688" font-size="9" fill="#64748b">  (Internet | vmss1-gw | vmss2-gw)</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════
+     NSG RULES PANEL
+═══════════════════════════════════════════════════════ -->
+<g id="nsg-panel">
+  <rect x="920" y="710" width="236" height="140" rx="8" fill="#111827" stroke="#374151" stroke-width="1.5"/>
+  <text x="930" y="729" font-size="11" font-weight="700" fill="#64748b">NSG Rules Summary</text>
+  <line x1="920" y1="734" x2="1156" y2="734" stroke="#374151" stroke-width="1"/>
+  <text x="930" y="750" font-size="10" font-weight="600" fill="#a855f7">labvmssup-vmss1-nsg</text>
+  <text x="930" y="763" font-size="9" fill="#94a3b8">Applied: Frontend + Backend subnets</text>
+  <text x="930" y="776" font-size="9" fill="#94a3b8">Rules: managed by CloudGuard module</text>
+  <line x1="920" y1="783" x2="1156" y2="783" stroke="#374151" stroke-width="0.5" stroke-dasharray="3,2"/>
+  <text x="930" y="797" font-size="10" font-weight="600" fill="#fb923c">labvmssup-*-linux-nsg</text>
+  <text x="930" y="810" font-size="9" fill="#94a3b8">Applied: linux-nic</text>
+  <text x="930" y="823" font-size="9" fill="#4ade80">Allow IN TCP :22 from 0.0.0.0/0 (priority 100)</text>
+  <text x="930" y="836" font-size="9" fill="#94a3b8">Resource group: labvmssup-vmss1-linux</text>
+  <text x="930" y="848" font-size="9" fill="#94a3b8">Note: SSH access unrestricted — lab env only</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════
+     AVAILABILITY ZONES badge
+═══════════════════════════════════════════════════════ -->
+<g id="az-badge">
+  <rect x="620" y="368" width="148" height="60" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <text x="694" y="385" text-anchor="middle" font-size="10" fill="#64748b">Availability Zones</text>
+  <rect x="630" y="392" width="30" height="26" rx="4" fill="#1d4ed8"/>
+  <text x="645" y="409" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Z1</text>
+  <rect x="668" y="392" width="30" height="26" rx="4" fill="#1d4ed8"/>
+  <text x="683" y="409" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Z2</text>
+  <rect x="706" y="392" width="30" height="26" rx="4" fill="#1d4ed8"/>
+  <text x="721" y="409" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Z3</text>
+  <text x="694" y="424" text-anchor="middle" font-size="9" fill="#64748b">Both VMSS1 and VMSS2</text>
+</g>
+
+<!-- ═══════════════════════════════════════════════════════
+     TITLE / LEGEND
+═══════════════════════════════════════════════════════ -->
+<text x="590" y="270" text-anchor="middle" font-size="11" fill="#475569">──────  labvmssup-vnet  (10.101.0.0/16)  ──────</text>
+
+</svg>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-swatch" style="background:#1d4ed8;border-color:#3b82f6"></div> VMSS1 (R8120 CloudGuard)</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#7c3aed;border-color:#a855f7"></div> VMSS2 (R82 CloudGuard)</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#c2410c;border-color:#f97316"></div> Linux Diagnostics VM</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#d97706;border-color:#f59e0b"></div> Management (cpman R82)</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#1d3a5f;border-color:#0078d4"></div> Load Balancer / Public IP</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#0d2d1a;border-color:#22c55e"></div> Backend subnet / Internal LB</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#1e1a2e;border-color:#a855f7"></div> NSG</div>
+  <div class="legend-item">
+    <svg width="40" height="12"><line x1="0" y1="6" x2="34" y2="6" stroke="#0078d4" stroke-width="2" stroke-dasharray="4,2"/><polygon points="34,3 40,6 34,9" fill="#0078d4"/></svg>
+    Traffic / LB path
+  </div>
+  <div class="legend-item">
+    <svg width="40" height="12"><line x1="0" y1="6" x2="34" y2="6" stroke="#22c55e" stroke-width="2"/><polygon points="34,3 40,6 34,9" fill="#22c55e"/></svg>
+    VMSS1 NIC path
+  </div>
+  <div class="legend-item">
+    <svg width="40" height="12"><line x1="0" y1="6" x2="34" y2="6" stroke="#a855f7" stroke-width="2"/><polygon points="34,3 40,6 34,9" fill="#a855f7"/></svg>
+    VMSS2 NIC path
+  </div>
+</div>
+
+<!-- INFO TABLES -->
+<div class="info-section">
+  <h2>Resource Summary</h2>
+  <div class="info-grid">
+
+    <div class="info-card">
+      <h3>VMSS1 — R8120 CloudGuard <span class="tag tag-blue">Standard</span></h3>
+      <table>
+        <tr><td>Resource Group</td><td>labvmssup-vmss1</td></tr>
+        <tr><td>VMSS Name</td><td>labvmssup-*-vmss1</td></tr>
+        <tr><td>Image</td><td>R8120 / sg-byol</td></tr>
+        <tr><td>Size</td><td>Standard_D4ds_v5</td></tr>
+        <tr><td>Disk</td><td>200 GB</td></tr>
+        <tr><td>Instances</td><td>2 min / 3 max</td></tr>
+        <tr><td>Zones</td><td>1, 2, 3</td></tr>
+        <tr><td>Frontend NIC</td><td>eth0 / 10.101.1.0/24</td></tr>
+        <tr><td>Backend NIC</td><td>eth1 / 10.101.2.0/24</td></tr>
+        <tr><td>Frontend LB</td><td>frontend-lb  TCP:8117  (public)</td></tr>
+        <tr><td>Backend LB</td><td>backend-lb  10.101.2.4  (internal)</td></tr>
+        <tr><td>SIC Key</td><td>12345678123456</td></tr>
+        <tr><td>Admin Shell</td><td>/bin/bash</td></tr>
+        <tr><td>Management</td><td>20.123.194.231 (eth0-public)</td></tr>
+        <tr><td>Custom Metrics</td><td>enabled</td></tr>
+      </table>
+    </div>
+
+    <div class="info-card">
+      <h3>VMSS2 — R82 CloudGuard <span class="tag tag-purple">Internal</span></h3>
+      <table>
+        <tr><td>Resource Group</td><td>labvmssup-vmss2</td></tr>
+        <tr><td>VMSS Name</td><td>labvmssup-*-vmss2b</td></tr>
+        <tr><td>Image</td><td>R82 / sg-byol</td></tr>
+        <tr><td>Size</td><td>Standard_D4ds_v5</td></tr>
+        <tr><td>Disk</td><td>200 GB</td></tr>
+        <tr><td>Instances</td><td>2 min / 3 max</td></tr>
+        <tr><td>Zones</td><td>1, 2, 3</td></tr>
+        <tr><td>Frontend NIC</td><td>eth0 / 10.101.1.0/24 (shared VNet)</td></tr>
+        <tr><td>Backend NIC</td><td>eth1 / 10.101.2.0/24 (shared VNet)</td></tr>
+        <tr><td>Frontend LB</td><td>reuses vmss1 frontend-lb</td></tr>
+        <tr><td>Backend LB</td><td>backend-lb  10.101.2.90  (internal)</td></tr>
+        <tr><td>SIC Key</td><td>12345678123456</td></tr>
+        <tr><td>Admin Shell</td><td>/bin/bash</td></tr>
+        <tr><td>Management</td><td>20.123.194.231 (shared with vmss1)</td></tr>
+        <tr><td>Config Template</td><td>labvmssup_r82_template</td></tr>
+      </table>
+    </div>
+
+    <div class="info-card">
+      <h3>Linux Diagnostics VM <span class="tag tag-orange">Ubuntu 22.04</span></h3>
+      <table>
+        <tr><td>Resource Group</td><td>labvmssup-vmss1-linux</td></tr>
+        <tr><td>VM Name</td><td>labvmssup-*-linux</td></tr>
+        <tr><td>Size</td><td>Standard_B1s</td></tr>
+        <tr><td>OS</td><td>Ubuntu 22.04 LTS (Jammy)</td></tr>
+        <tr><td>Admin</td><td>azureuser</td></tr>
+        <tr><td>NIC</td><td>labvmssup-*-linux-nic</td></tr>
+        <tr><td>Private IP</td><td>Dynamic (10.101.3.0/24)</td></tr>
+        <tr><td>Public IP</td><td>labvmssup-*-linux-pip (Static)</td></tr>
+        <tr><td>NSG</td><td>Allow TCP:22 inbound</td></tr>
+        <tr><td>Route Table</td><td>labvmssup-*-linux-rt</td></tr>
+        <tr><td>Default GW</td><td>var.gw (Internet|vmss1|vmss2)</td></tr>
+        <tr><td>Boot Diagnostics</td><td>enabled</td></tr>
+        <tr><td>VNet</td><td>labvmssup-vnet (shared)</td></tr>
+      </table>
+    </div>
+
+    <div class="info-card">
+      <h3>Management Server <span class="tag tag-green">cpman R82</span></h3>
+      <table>
+        <tr><td>Resource Group</td><td>labvmmsup-management-*</td></tr>
+        <tr><td>Name</td><td>cpman-*</td></tr>
+        <tr><td>Image</td><td>R82 / mgmt-byol</td></tr>
+        <tr><td>Size</td><td>Standard_D4ds_v5</td></tr>
+        <tr><td>Disk</td><td>200 GB</td></tr>
+        <tr><td>VNet</td><td>labvmmsup-management-vnet-* (isolated)</td></tr>
+        <tr><td>Subnet</td><td>10.0.1.0/24</td></tr>
+        <tr><td>VNet CIDR</td><td>10.0.0.0/16</td></tr>
+        <tr><td>Public IP</td><td>20.123.194.231</td></tr>
+        <tr><td>Interface</td><td>eth0-public</td></tr>
+        <tr><td>GUI Client</td><td>0.0.0.0/0</td></tr>
+        <tr><td>API Access</td><td>all</td></tr>
+        <tr><td>Manages</td><td>VMSS1 (R8120) + VMSS2 (R82)</td></tr>
+        <tr><td>Timezone</td><td>Europe/Prague</td></tr>
+      </table>
+    </div>
+
+    <div class="info-card">
+      <h3>Shared VNet — labvmssup-vnet</h3>
+      <table>
+        <tr><td>Address Space</td><td>10.101.0.0/16</td></tr>
+        <tr><td>Location</td><td>West Europe</td></tr>
+        <tr><td>Owner RG</td><td>labvmssup-vmss1</td></tr>
+        <tr><td>Subnet: Frontend</td><td>10.101.1.0/24</td></tr>
+        <tr><td>Subnet: Backend</td><td>10.101.2.0/24</td></tr>
+        <tr><td>Subnet: Linux</td><td>10.101.3.0/24</td></tr>
+        <tr><td>NSG (FE+BE)</td><td>labvmssup-vmss1-nsg</td></tr>
+        <tr><td>Used by</td><td>vmss1, vmss2, vmss1-linux</td></tr>
+      </table>
+    </div>
+
+    <div class="info-card">
+      <h3>Load Balancers Summary</h3>
+      <table>
+        <tr><td>frontend-lb</td><td>Public / Standard / TCP:8117</td></tr>
+        <tr><td></td><td>Floating IP: on  |  Probe: TCP:8117</td></tr>
+        <tr><td>backend-lb (v1)</td><td>Internal / 10.101.2.4 / All</td></tr>
+        <tr><td></td><td>Floating IP: on  |  VMSS1 pool</td></tr>
+        <tr><td>backend-lb (v2)</td><td>Internal / 10.101.2.90 / All</td></tr>
+        <tr><td></td><td>Floating IP: on  |  VMSS2 pool</td></tr>
+        <tr><td>All SKUs</td><td>Standard</td></tr>
+        <tr><td>Probe interval</td><td>5s / unhealthy threshold: 2</td></tr>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

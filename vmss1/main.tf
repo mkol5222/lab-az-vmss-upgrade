@@ -31,7 +31,7 @@ module "example_module" {
   bootstrap_script               = "touch /home/admin/bootstrap.txt; echo 'hello_world' > /home/admin/bootstrap.txt"
   availability_zones_num         = "3"
   availability_zones             = ["1", "2", "3"]
-  configuration_template_name    = "labvmssup_template"
+  configuration_template_name    = "vmss_template"
   enable_custom_metrics          = true
 
   # Management Variables
