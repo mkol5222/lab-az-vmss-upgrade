@@ -47,9 +47,11 @@ module "vmss2" {
   frontend_subnet_name         = "Frontend"
   backend_subnet_name          = "Backend"
 
-  # No new Load Balancers - attach to vmss1's LB pools later
-  deployment_mode      = "None"
-  frontend_lb_pool_ids = []
+    # One new backend Load Balancer is created.
+  deployment_mode              = "Internal" # "Standard" creates new LB, "None" reuses existing LB (must set LB pool IDs below)
+  backend_lb_IP_address        = 90
+  frontend_lb_pool_ids         = []
+  frontend_load_distribution   = "Default"
   backend_lb_pool_ids  = []
 
   # Scale set
