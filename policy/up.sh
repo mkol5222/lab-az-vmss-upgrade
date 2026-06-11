@@ -2,9 +2,9 @@
 
 set -euo pipefail
 
-CPMAN_RG=$(cd ../management; terraform output -raw rg)
-CPMAN_NAME=$(cd ../management; terraform output -raw name)
-CPMAN_ADMIN_PASSWORD=$(cd ../management; terraform output -raw admin_password)
+CPMAN_RG=$(cd ../cpman; terraform output -raw rg)
+CPMAN_NAME=$(cd ../cpman; terraform output -raw name)
+CPMAN_ADMIN_PASSWORD=$(cd ../cpman; terraform output -raw admin_password)
 
 CPMAN_IP=$(az vm show -d --resource-group "$CPMAN_RG" --name "$CPMAN_NAME" --query "publicIps" -o tsv)
 
