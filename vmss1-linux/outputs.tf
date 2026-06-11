@@ -17,3 +17,8 @@ output "linux_admin_username" {
   description = "Admin username for SSH"
   value       = local.admin_username
 }
+
+output "workstation_ip" {
+  description = "Sensed public IP of the DevOps workstation (added as /32 Internet route)"
+  value       = local.workstation_ip
+}

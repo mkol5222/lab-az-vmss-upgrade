@@ -1,5 +1,5 @@
 resource "checkpoint_management_package" "vmss" {
-  name              = "VMSSpolicy"
+  name              = "VMSS"
   comments          = "Policy for VMSS"
   color             = "blue"
   threat_prevention = true

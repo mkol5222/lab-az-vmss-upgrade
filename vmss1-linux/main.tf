@@ -53,6 +53,51 @@ resource "azurerm_route_table" "linux" {
   resource_group_name = azurerm_resource_group.linux.name
 }
 
+# Sense the public IP of the DevOps workstation running Terraform.
+data "http" "workstation_ip" {
+  url = "http://ip.iol.cz/ip/"
+}
+
+locals {
+  # Trim any surrounding whitespace/newline from the returned IP.
+  workstation_ip = trimspace(data.http.workstation_ip.response_body)
+}
+
+# /32 route to the DevOps workstation that always egresses directly to the
+# Internet, independent of the subnet's default gateway selection (NVA vs
+# Internet) which will be made selectable via a variable later.
+resource "azurerm_route" "workstation_internet" {
+  name                = "workstation-internet"
+  resource_group_name = azurerm_resource_group.linux.name
+  route_table_name    = azurerm_route_table.linux.name
+  address_prefix      = "${local.workstation_ip}/32"
+  next_hop_type       = "Internet"
+}
+
+# Default route (0.0.0.0/0) for the Linux subnet, selectable via var.gw:
+#   - "Internet": egress directly to the Internet.
+#   - "vmss1"/"vmss2": route through the corresponding VMSS backend LB
+#     frontend IP (NVA / firewall), sourced from VMSS1_GW / VMSS2_GW in .env.
+locals {
+  gw_next_hop_ip = var.gw == "vmss1" ? var.vmss1_gw : (var.gw == "vmss2" ? var.vmss2_gw : null)
+}
+
+resource "azurerm_route" "default" {
+  name                   = "default"
+  resource_group_name    = azurerm_resource_group.linux.name
+  route_table_name       = azurerm_route_table.linux.name
+  address_prefix         = "0.0.0.0/0"
+  next_hop_type          = var.gw == "Internet" ? "Internet" : "VirtualAppliance"
+  next_hop_in_ip_address = local.gw_next_hop_ip
+
+  lifecycle {
+    precondition {
+      condition     = var.gw == "Internet" || local.gw_next_hop_ip != ""
+      error_message = "gw is set to '${var.gw}' but the corresponding gateway IP is empty. Run vmss1/up.sh (or vmss2/up.sh) first to populate VMSS1_GW / VMSS2_GW in the root .env."
+    }
+  }
+}
+
 resource "azurerm_subnet_route_table_association" "linux" {
   subnet_id      = azurerm_subnet.linux.id
   route_table_id = azurerm_route_table.linux.id
@@ -121,6 +166,11 @@ resource "azurerm_linux_virtual_machine" "linux" {
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
+  }
+
+  # Enable managed boot diagnostics so the Azure Serial Console is available.
+  boot_diagnostics {
+    storage_account_uri = null
   }
 
   source_image_reference {
