@@ -90,7 +90,7 @@ in case we want VMSS1 back
 make vmss1
 ```
 
-removing it call, but mamagement
+removing it all, but mamagement
 
 ```shell
 # destroy
