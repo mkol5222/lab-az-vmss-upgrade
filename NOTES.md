@@ -86,8 +86,7 @@ az vmss list -g labvmssup-vmss2 -o table
 ```
 
 in case we want VMSS1 back
-# 20.56.23.154
-# 20.86.42.155
+
 
 ```shell
 # put VMSS1 back; bacause removed resources are not commented out, just re-apply
