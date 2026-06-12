@@ -41,3 +41,7 @@ az account show -o table
 # or simply BETTER use prepared scripts
 make sp-login
 ```
+
+## VMSS Upgrade scenario
+
+![alt text](image.png)
