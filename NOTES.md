@@ -75,6 +75,6 @@ az vmss list -g labvmssup-vmss2 -o table
 (cd ../vmss2 && dotenvx run -f ../.env -fk ../.env.keys -- terraform plan)   # expect: no changes
 
 
-# put VMSS1 back
+# put VMSS1 back; bacause removed resources are not commented out, just re-apply
 make vmss1
 ```
