@@ -8,9 +8,14 @@ cpman:
 	(cd cpman && ./up.sh)
 cpman-ssh:
 	(cd cpman && ./ssh.sh)
+cpman-start:
+	(cd cpman && ./startvm.sh)
+cpman-stop:
+	(cd cpman && ./stopvm.sh)
 
 linux:
 	(cd vmss1-linux && ./up.sh)
+vmss1-linux: linux
 vmss1:
 	(cd vmss1 && ./up.sh)
 vmss2:
