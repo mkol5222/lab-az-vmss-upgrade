@@ -72,7 +72,7 @@ az network vnet subnet list -g labvmssup-vmss1 --vnet-name labvmssup-vnet --quer
 az vmss list -g labvmssup-vmss2 -o table
 
 # vmss2 not touched - no changes expected:
-(cd ./vmss2 && dotenvx run -f ../.env -fk ../.env.keys -- terraform plan)   # expect: no changes
+(cd ../vmss2 && dotenvx run -f ../.env -fk ../.env.keys -- terraform plan)   # expect: no changes
 
 
 # put VMSS1 back
