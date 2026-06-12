@@ -16,19 +16,27 @@ point Linux to vmss1, make traffic and check FW logs
 (cd vmss1-linux && TF_VAR_gw=vmss1 ./up.sh)
 (cd vmss1-linux && ./ssh.sh)
 # while true; do curl -m1 ifconfig.me; sleep 1; echo; done
+```
 
+point Linux to vmss2, make traffic and check FW logs
+
+```shell
 (cd vmss1-linux && TF_VAR_gw=vmss2 ./up.sh)
 (cd vmss1-linux && ./ssh.sh)
 # while true; do curl -m1 ifconfig.me; sleep 1; echo; done
+```
 
+check inventory of VMSS1
 
-
+```shell
 # destroy resources from VMSS1 and check that traffic is still flowing through VMSS2
 az vmss list      -g labvmssup-vmss1 -o table   
 az network lb list -g labvmssup-vmss1 -o table  
+```
 
-cd vmss1
+now we can release VMSS1 resources from Azure
 
+```shell
 # dry run
 cd vmss1
 dotenvx run -f ../.env -fk ../.env.keys -- terraform plan -destroy \
@@ -71,10 +79,23 @@ az network vnet subnet list -g labvmssup-vmss1 --vnet-name labvmssup-vnet --quer
 # vmss2 + linux still healthy, and vmss2 config is stable:
 az vmss list -g labvmssup-vmss2 -o table
 
-# vmss2 not touched - no changes expected:
+# vmss2 not touched - no changes expected (might show unrelated changes cause by tags):
 (cd ../vmss2 && dotenvx run -f ../.env -fk ../.env.keys -- terraform plan)   # expect: no changes
+```
 
+in case we want VMSS1 back
 
+```shell
 # put VMSS1 back; bacause removed resources are not commented out, just re-apply
 make vmss1
+```
+
+removing it call, but mamagement
+
+```shell
+# destroy
+make linux-down
+make vmss2-down
+make vmss1-down
+
 ```
