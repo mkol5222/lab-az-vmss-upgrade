@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>VMSS1 &rarr; VMSS2 Migration &amp; Cost Teardown</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --panel: #1a2230;
+    --panel-2: #222d3d;
+    --border: #2e3b4e;
+    --text: #e6edf3;
+    --muted: #9fb0c3;
+    --accent: #4ea1ff;
+    --danger: #ff6b6b;
+    --danger-bg: #3a1f24;
+    --keep: #4ec9a3;
+    --keep-bg: #143029;
+    --warn: #ffce6b;
+    --warn-bg: #3a3220;
+    --code-bg: #11161d;
+    --code-border: #2a3543;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    padding: 0 0 4rem 0;
+  }
+  header.hero {
+    background: linear-gradient(135deg, #16243a 0%, #0f1419 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 2.5rem 1.5rem 2rem;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 1.5rem; }
+  header.hero .wrap { padding: 0; }
+  h1 { font-size: 1.9rem; margin: 0 0 .4rem; letter-spacing: .3px; }
+  h2 { font-size: 1.35rem; margin: 2.4rem 0 .8rem; padding-bottom: .4rem; border-bottom: 1px solid var(--border); }
+  h3 { font-size: 1.08rem; margin: 1.6rem 0 .5rem; color: var(--accent); }
+  p { margin: .6rem 0; }
+  .subtitle { color: var(--muted); font-size: 1.02rem; margin: 0; }
+  .meta { color: var(--muted); font-size: .85rem; margin-top: 1rem; }
+  .badges { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: .5rem; }
+  .badge {
+    display: inline-block; font-size: .76rem; font-weight: 600;
+    padding: .22rem .6rem; border-radius: 999px; border: 1px solid var(--border);
+    background: var(--panel-2); color: var(--muted);
+  }
+  .badge.danger { color: var(--danger); border-color: #5a2a30; background: var(--danger-bg); }
+  .badge.keep { color: var(--keep); border-color: #2a5045; background: var(--keep-bg); }
+
+  .callout {
+    border: 1px solid var(--border); border-left-width: 4px;
+    border-radius: 8px; padding: .9rem 1.1rem; margin: 1.1rem 0;
+    background: var(--panel);
+  }
+  .callout.info { border-left-color: var(--accent); }
+  .callout.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+  .callout.danger { border-left-color: var(--danger); background: var(--danger-bg); }
+  .callout.keep { border-left-color: var(--keep); background: var(--keep-bg); }
+  .callout strong { color: var(--text); }
+
+  table {
+    width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+  }
+  th, td { text-align: left; padding: .6rem .8rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--panel-2); color: var(--muted); font-weight: 600; font-size: .78rem; text-transform: uppercase; letter-spacing: .5px; }
+  tr:last-child td { border-bottom: none; }
+  td code, th code { white-space: nowrap; }
+  .tag { font-size: .72rem; font-weight: 700; padding: .12rem .5rem; border-radius: 4px; }
+  .tag.cost { background: var(--danger-bg); color: var(--danger); border: 1px solid #5a2a30; }
+  .tag.free { background: var(--keep-bg); color: var(--keep); border: 1px solid #2a5045; }
+
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: .86em; background: var(--code-bg); border: 1px solid var(--code-border);
+    padding: .08rem .35rem; border-radius: 4px; color: #d6dee8;
+  }
+  pre {
+    background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 8px;
+    padding: 1rem 1.1rem; overflow-x: auto; position: relative; margin: .8rem 0;
+  }
+  pre code { background: none; border: none; padding: 0; font-size: .84rem; line-height: 1.5; color: #cdd6e0; white-space: pre; }
+  .cmd-label {
+    display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .5px;
+    text-transform: uppercase; color: var(--muted); margin: 1.2rem 0 -.2rem;
+  }
+
+  ol.steps { counter-reset: step; list-style: none; padding-left: 0; margin: 1rem 0; }
+  ol.steps > li {
+    position: relative; padding: .9rem 1rem .9rem 3.2rem; margin: .6rem 0;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+  }
+  ol.steps > li::before {
+    counter-increment: step; content: counter(step);
+    position: absolute; left: .9rem; top: .9rem;
+    width: 1.7rem; height: 1.7rem; border-radius: 50%;
+    background: var(--accent); color: #04101f; font-weight: 700; font-size: .9rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  ol.steps > li strong { display: block; margin-bottom: .15rem; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.1rem; }
+  .card h4 { margin: 0 0 .5rem; font-size: 1rem; }
+
+  .flow {
+    display: flex; align-items: stretch; gap: .6rem; flex-wrap: wrap; margin: 1.2rem 0;
+  }
+  .node {
+    flex: 1 1 200px; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: .8rem 1rem;
+  }
+  .node.danger { border-color: #5a2a30; }
+  .node.keep { border-color: #2a5045; }
+  .node.new { border-color: #2f5a86; }
+  .node .t { font-weight: 700; margin-bottom: .25rem; }
+  .node .d { font-size: .8rem; color: var(--muted); }
+  .arrow { align-self: center; color: var(--muted); font-size: 1.4rem; padding: 0 .2rem; }
+
+  ul.tight { margin: .4rem 0; padding-left: 1.2rem; }
+  ul.tight li { margin: .25rem 0; }
+  footer { color: var(--muted); font-size: .82rem; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+  a { color: var(--accent); }
+  .nowrap { white-space: nowrap; }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <h1>VMSS1 &rarr; VMSS2 Migration &amp; Cost Teardown</h1>
+    <p class="subtitle">Safely retire the legacy R8120 CloudGuard VMSS after cutting traffic over to the new R82 VMSS &mdash; while preserving the shared VNet environment.</p>
+    <div class="badges">
+      <span class="badge">Project: lab-az-vmss-upgrade</span>
+      <span class="badge">Region: westeurope</span>
+      <span class="badge">VNet: labvmssup-vnet (10.101.0.0/16)</span>
+      <span class="badge danger">11 resources to destroy</span>
+      <span class="badge keep">network layer kept</span>
+    </div>
+    <p class="meta">Generated 2026-06-12 &middot; Strategy: targeted <code>terraform destroy</code> &middot; Method A (config drift accepted)</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <h2>1. Overview</h2>
+  <p>
+    <code>vmss2/</code> deploys a new R82 CloudGuard scale set with its own internal Load Balancer into the
+    <strong>existing</strong> network created by <code>vmss1/</code>. Once routing is cut over to the new firewalls,
+    the legacy <code>vmss1/</code> compute and Load Balancers become redundant and continue to incur cost.
+  </p>
+  <p>
+    This report describes a <strong>safe, targeted teardown</strong> that removes only the billable
+    <code>vmss1/</code> resources (scale set, two Load Balancers, public IP, boot-diagnostics storage)
+    while keeping the elementary network environment (VNet, subnets, NSG, route tables) that both
+    <code>vmss2/</code> and <code>vmss1-linux/</code> depend on.
+  </p>
+
+  <div class="flow">
+    <div class="node danger">
+      <div class="t">vmss1 (legacy R8120)</div>
+      <div class="d">VMSS + 2&times; Standard LB + public IP &rarr; <strong>destroy</strong></div>
+    </div>
+    <div class="arrow">&rarr;</div>
+    <div class="node new">
+      <div class="t">vmss2 (new R82)</div>
+      <div class="d">VMSS + internal LB &rarr; <strong>becomes the active NVA</strong></div>
+    </div>
+    <div class="arrow">&rarr;</div>
+    <div class="node keep">
+      <div class="t">labvmssup-vnet</div>
+      <div class="d">VNet + subnets + NSG + route tables &rarr; <strong>keep (shared)</strong></div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <strong>Why not split the VNet into its own state?</strong> The CloudGuard module
+    (<code>module.example_module</code>) is monolithic &mdash; it provisions the VNet, subnets, Load Balancers
+    <em>and</em> the VMSS together. A targeted destroy is the lowest-risk lever. The trade-off: the
+    <code>vmss1/</code> configuration still declares the destroyed resources, so its state will show drift.
+    <strong>Do not run <code>make vmss1</code> again</strong>, or the resources will be recreated.
+  </div>
+
+  <h2>2. Critical dependency &mdash; why the network layer must stay</h2>
+  <ul class="tight">
+    <li><code>vmss2/</code> references the VNet and both subnets as <strong>Terraform data sources</strong> (read-only) &mdash; it does <em>not</em> manage or recreate them.</li>
+    <li>The new vmss2 firewall instances run inside vmss1&rsquo;s <strong>Backend</strong> subnet (<code>10.101.2.0/24</code>).</li>
+    <li>That subnet is associated with <strong>vmss1&rsquo;s NSG</strong> (<code>labvmssup-vmss1-nsg</code>) and vmss1&rsquo;s <strong>Backend route table</strong>, both owned by the <code>vmss1/</code> state.</li>
+  </ul>
+  <div class="callout danger">
+    <strong>Do not destroy</strong> the VNet, subnets, NSG, or route tables. Removing them would strip the
+    NSG and route table off the subnet where the vmss2 firewalls live, breaking the new deployment.
+    These resources are also <strong>free or negligible</strong> in cost &mdash; all real savings come from the
+    VMSS, Load Balancers and public IP.
+  </div>
+
+  <h2>3. Safe migration strategy</h2>
+  <ol class="steps">
+    <li>
+      <strong>Confirm vmss2 is up</strong>
+      Ensure the new scale set is deployed and <code>VMSS2_GW</code> is populated in the root <code>.env</code>.
+      Run <code>make vmss2</code> if needed (its <code>up.sh</code> captures the backend LB frontend IP).
+    </li>
+    <li>
+      <strong>Repoint the Linux diagnostics subnet to vmss2</strong>
+      Switch the default gateway of <code>linux-subnet</code> from vmss1&rsquo;s NVA to vmss2&rsquo;s, then re-apply.
+    </li>
+    <li>
+      <strong>Verify connectivity through vmss2</strong>
+      SSH into the Linux VM (<code>make linux-ssh</code>) and confirm egress now flows through the new R82 firewalls
+      (e.g. <code>traceroute</code> / <code>curl</code> to the internet) before removing anything.
+    </li>
+    <li>
+      <strong>Dry-run the teardown</strong>
+      Run a <code>terraform plan -destroy</code> with the target list and review that <em>only</em> the intended
+      compute/LB resources are scheduled for deletion.
+    </li>
+    <li>
+      <strong>Execute the targeted destroy</strong>
+      Apply the <code>terraform destroy -target=&hellip;</code> command (Section&nbsp;6).
+    </li>
+    <li>
+      <strong>Post-migration verification</strong>
+      Confirm the VNet/subnets/NSG/route tables are intact, vmss1 VMSS+LBs are gone, and
+      <code>cd vmss2 &amp;&amp; terraform plan</code> reports no changes.
+    </li>
+  </ol>
+
+  <h2>4. Resources to DESTROY <span class="badge danger">vmss1 state</span></h2>
+  <p>All addresses live in the <code>vmss1/</code> state under <code>module.example_module</code>. These are the billable items.</p>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Terraform address (state)</th><th>Azure resource</th><th>Cost</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>module.example_module.azurerm_linux_virtual_machine_scale_set.vmss</code></td><td>R8120 VMSS &mdash; 2&times; Standard_D4ds_v5</td><td><span class="tag cost">primary</span></td></tr>
+      <tr><td>2</td><td><code>module.example_module.azurerm_monitor_autoscale_setting.vmss_settings</code></td><td>Autoscale setting</td><td><span class="tag free">free</span></td></tr>
+      <tr><td>3</td><td><code>module.example_module.azurerm_lb.frontend_lb</code></td><td>Standard Load Balancer (frontend)</td><td><span class="tag cost">cost</span></td></tr>
+      <tr><td>4</td><td><code>module.example_module.azurerm_lb.backend_lb</code></td><td>Standard Load Balancer (backend / NVA gw)</td><td><span class="tag cost">cost</span></td></tr>
+      <tr><td>5</td><td><code>module.example_module.azurerm_lb_rule.lbnatrule_standard</code></td><td>LB rule</td><td><span class="tag free">free</span></td></tr>
+      <tr><td>6</td><td><code>module.example_module.azurerm_lb_probe.azure_lb_healprob</code></td><td>LB health probe</td><td><span class="tag free">free</span></td></tr>
+      <tr><td>7</td><td><code>module.example_module.azurerm_lb_backend_address_pool.backend_lb_pool</code></td><td>LB backend pool</td><td><span class="tag free">free</span></td></tr>
+      <tr><td>8</td><td><code>module.example_module.azurerm_lb_backend_address_pool.frontend_lb_pool</code></td><td>LB backend pool</td><td><span class="tag free">free</span></td></tr>
+      <tr><td>9</td><td><code>module.example_module.azurerm_public_ip.public_ip_lb</code></td><td>Standard public IP</td><td><span class="tag cost">cost</span></td></tr>
+      <tr><td>10</td><td><code>module.example_module.azurerm_role_assignment.custom_metrics_role_assignment</code></td><td>Role assignment (custom metrics)</td><td><span class="tag free">free</span></td></tr>
+      <tr><td>11</td><td><code>module.example_module.module.vm_boot_diagnostics_storage.azurerm_storage_account.vm_boot_diagnostics_storage</code></td><td>Boot diagnostics storage account</td><td><span class="tag cost">minor</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. Resources to KEEP <span class="badge keep">vmss1 state</span></h2>
+  <p>The elementary network environment plus state bookkeeping. Free or negligible cost; required by vmss2 and the Linux VM.</p>
+  <table>
+    <thead>
+      <tr><th>Terraform address (state)</th><th>Azure resource</th><th>Why keep</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>module.example_module.module.vnet.azurerm_virtual_network.vnet</code></td><td>VNet <code>labvmssup-vnet</code></td><td>Shared by vmss2 + linux</td></tr>
+      <tr><td><code>module.example_module.module.vnet.azurerm_subnet.subnet</code> <span class="nowrap">[Frontend, Backend]</span></td><td>Frontend/Backend subnets</td><td>vmss2 firewalls run here</td></tr>
+      <tr><td><code>module.example_module.module.vnet.azurerm_route_table.backend</code> / <code>.frontend</code></td><td>Route tables</td><td>Attached to shared subnets</td></tr>
+      <tr><td><code>module.example_module.module.vnet.azurerm_subnet_route_table_association.backend_association</code> / <code>.frontend_association</code></td><td>Subnet &harr; RT associations</td><td>Routing for vmss2 subnet</td></tr>
+      <tr><td><code>module.example_module.module.vnet.azurerm_subnet_network_security_group_association.security_group_backend_association</code> / <code>.security_group_frontend_association</code></td><td>Subnet &harr; NSG associations</td><td>Security for vmss2 subnet</td></tr>
+      <tr><td><code>module.example_module.module.network_security_group.azurerm_network_security_group.nsg</code></td><td>NSG <code>labvmssup-vmss1-nsg</code></td><td>Used by vmss2 subnet</td></tr>
+      <tr><td><code>module.example_module.module.network_security_group.azurerm_network_security_rule.security_rule</code></td><td>NSG rule</td><td>Part of shared NSG</td></tr>
+      <tr><td><code>module.example_module.module.common.azurerm_resource_group.resource_group</code></td><td>RG <code>labvmssup-vmss1</code></td><td>Holds the VNet</td></tr>
+      <tr><td><code>module.example_module.module.common.null_resource.validate_region</code></td><td>(state helper)</td><td>No Azure cost</td></tr>
+      <tr><td><code>module.example_module.module.common.module.regions[0].azapi_client_config.current</code></td><td>(data/state helper)</td><td>No Azure cost</td></tr>
+      <tr><td><code>module.example_module.module.common.module.regions[0].azapi_resource_action.locations</code></td><td>(data/state helper)</td><td>No Azure cost</td></tr>
+      <tr><td><code>random_password.admin_password</code></td><td>(state value)</td><td>No Azure cost</td></tr>
+      <tr><td><code>module.example_module.random_id.random_id</code></td><td>(state value)</td><td>No Azure cost</td></tr>
+    </tbody>
+  </table>
+  <div class="callout info">
+    The boot-diagnostics <code>random_id.random_id</code> entry remains harmlessly in state after the storage
+    account is destroyed; no action required.
+  </div>
+
+  <h2>6. Commands</h2>
+  <p>All commands are wrapped with <code>dotenvx</code> to inject the service-principal credentials, exactly as the existing <code>up.sh</code>/<code>down.sh</code> scripts do.</p>
+
+  <span class="cmd-label">Step 2 &mdash; repoint Linux subnet gateway to vmss2 (run from repo root)</span>
+  <pre><code># Switch the linux-subnet default route next-hop to the vmss2 backend LB (NVA)
+dotenvx set TF_VAR_gw vmss2 -f .env
+
+# Re-apply vmss1-linux so the 0.0.0.0/0 route points at VMSS2_GW
+make linux</code></pre>
+
+  <span class="cmd-label">Step 3 &mdash; verify egress flows through vmss2</span>
+  <pre><code>make linux-ssh
+# inside the VM:
+curl -s https://ifconfig.io ; echo
+traceroute -n 8.8.8.8 | head</code></pre>
+
+  <span class="cmd-label">Step 4 &mdash; dry-run the teardown (run from vmss1/)</span>
+  <pre><code>cd vmss1
+dotenvx run -f ../.env -fk ../.env.keys -- terraform plan -destroy \
+  -target='module.example_module.azurerm_monitor_autoscale_setting.vmss_settings' \
+  -target='module.example_module.azurerm_linux_virtual_machine_scale_set.vmss' \
+  -target='module.example_module.azurerm_lb_rule.lbnatrule_standard' \
+  -target='module.example_module.azurerm_lb_probe.azure_lb_healprob' \
+  -target='module.example_module.azurerm_lb_backend_address_pool.backend_lb_pool' \
+  -target='module.example_module.azurerm_lb_backend_address_pool.frontend_lb_pool' \
+  -target='module.example_module.azurerm_lb.frontend_lb' \
+  -target='module.example_module.azurerm_lb.backend_lb' \
+  -target='module.example_module.azurerm_public_ip.public_ip_lb' \
+  -target='module.example_module.azurerm_role_assignment.custom_metrics_role_assignment' \
+  -target='module.example_module.module.vm_boot_diagnostics_storage.azurerm_storage_account.vm_boot_diagnostics_storage'</code></pre>
+
+  <span class="cmd-label">Step 5 &mdash; execute the targeted destroy (run from vmss1/)</span>
+  <pre><code>dotenvx run -f ../.env -fk ../.env.keys -- terraform destroy \
+  -target='module.example_module.azurerm_monitor_autoscale_setting.vmss_settings' \
+  -target='module.example_module.azurerm_linux_virtual_machine_scale_set.vmss' \
+  -target='module.example_module.azurerm_lb_rule.lbnatrule_standard' \
+  -target='module.example_module.azurerm_lb_probe.azure_lb_healprob' \
+  -target='module.example_module.azurerm_lb_backend_address_pool.backend_lb_pool' \
+  -target='module.example_module.azurerm_lb_backend_address_pool.frontend_lb_pool' \
+  -target='module.example_module.azurerm_lb.frontend_lb' \
+  -target='module.example_module.azurerm_lb.backend_lb' \
+  -target='module.example_module.azurerm_public_ip.public_ip_lb' \
+  -target='module.example_module.azurerm_role_assignment.custom_metrics_role_assignment' \
+  -target='module.example_module.module.vm_boot_diagnostics_storage.azurerm_storage_account.vm_boot_diagnostics_storage'</code></pre>
+
+  <span class="cmd-label">Step 6 &mdash; verify the result</span>
+  <pre><code># vmss1 compute/LB should be gone:
+az vmss list      -g labvmssup-vmss1 -o table   # expect empty
+az network lb list -g labvmssup-vmss1 -o table   # expect empty
+
+# network layer must still exist:
+az network vnet show   -g labvmssup-vmss1 -n labvmssup-vnet -o table
+az network vnet subnet list -g labvmssup-vmss1 --vnet-name labvmssup-vnet \
+  --query "[].{name:name,nsg:networkSecurityGroup.id,rt:routeTable.id}" -o table
+
+# vmss2 + linux still healthy, and vmss2 config is stable:
+az vmss list -g labvmssup-vmss2 -o table
+cd ../vmss2 &amp;&amp; dotenvx run -f ../.env -fk ../.env.keys -- terraform plan   # expect: no changes</code></pre>
+
+  <h2>7. Rollback</h2>
+  <div class="callout info">
+    The <code>vmss1/</code> configuration still declares every destroyed resource. To recreate the legacy
+    deployment, simply re-run <code>make vmss1</code> (a normal <code>terraform apply</code>). Note this restores
+    the duplicate firewall fleet and its cost &mdash; only do so if the migration must be reverted.
+  </div>
+
+  <h2>8. Cost-savings summary</h2>
+  <div class="grid2">
+    <div class="card">
+      <h4>Removed (vmss1)</h4>
+      <ul class="tight">
+        <li>2&times; <code>Standard_D4ds_v5</code> firewall instances</li>
+        <li>2&times; Standard Load Balancers</li>
+        <li>1&times; Standard public IP</li>
+        <li>1&times; boot-diagnostics storage account</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Remaining (vmss2 + shared)</h4>
+      <ul class="tight">
+        <li>2&times; <code>Standard_D4ds_v5</code> R82 instances</li>
+        <li>1&times; internal Load Balancer</li>
+        <li>Shared VNet, subnets, NSG, route tables (free / negligible)</li>
+        <li>Linux diagnostics VM (<code>Standard_B1s</code>)</li>
+      </ul>
+    </div>
+  </div>
+  <p>Net effect: the duplicate firewall fleet and its Load Balancers are eliminated, roughly halving the
+     CloudGuard compute and load-balancing spend, with the new R82 deployment as the sole active NVA.</p>
+
+  <footer>
+    lab-az-vmss-upgrade &middot; migration &amp; teardown report &middot; targeted-destroy strategy (Method&nbsp;A).
+    Resource addresses sourced from the <code>vmss1/</code> and <code>vmss2/</code> Terraform state files.
+    Review the dry-run plan output before destroying.
+  </footer>
+
+</main>
+</body>
+</html>

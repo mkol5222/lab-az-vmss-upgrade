@@ -30,6 +30,8 @@ EOF
 # notice ability to pass commands with script args "$@"
 # ssh admin@"$CPMAN_IP" "$@"
 
-sshpass -p "$ADMIN_PASSWORD" ssh-copy-id -o StrictHostKeyChecking=no admin@"$CPMAN_IP"
+# sshpass -p "$ADMIN_PASSWORD" ssh-copy-id -f -o StrictHostKeyChecking=no admin@"$CPMAN_IP"
 
-ssh admin@"$CPMAN_IP" "$@"
+# ssh admin@"$CPMAN_IP" "$@"
+
+sshpass -p "$ADMIN_PASSWORD" ssh admin@"$CPMAN_IP" -o StrictHostKeyChecking=no

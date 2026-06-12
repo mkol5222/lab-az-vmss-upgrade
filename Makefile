@@ -12,6 +12,8 @@ cpman-start:
 	(cd cpman && ./startvm.sh)
 cpman-stop:
 	(cd cpman && ./stopvm.sh)
+cpman-info:
+	(cd cpman && ./info.sh)
 
 linux:
 	(cd vmss1-linux && ./up.sh)
