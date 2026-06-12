@@ -10,7 +10,6 @@ sudo apt-get install -y \
     zoxide \
     fzf \
     bat \
-    exa \
     ripgrep \
     fd-find
 
@@ -18,6 +17,6 @@ sudo apt-get install -y \
     echo
     echo 'eval "$(zoxide init bash)"'
     echo 'alias bat="batcat"'
-    echo 'alias ls="exa --group-directories-first"'
+    #echo 'alias ls="exa --group-directories-first"'
     echo 'alias fd="fdfind"'
 } >> ~/.bashrc
