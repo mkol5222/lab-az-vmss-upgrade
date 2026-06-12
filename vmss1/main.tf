@@ -1,6 +1,6 @@
-module "example_module" {
+module "vmss1" {
   source  = "CheckPointSW/cloudguard-network-security/azure//modules/vmss"
-  version = "~> 1.0"
+  version = "1.2.6"
 
   # Authentication Variables
   client_secret                   = var.password

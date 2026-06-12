@@ -7,8 +7,11 @@
 # Pinned to the commit that adds deployment_mode = "None" + external LB pool
 # support (not yet in a tagged release such as v1.2.6).
 module "vmss2" {
-  source = "github.com/CheckPointSW/terraform-azure-cloudguard-network-security//modules/vmss?ref=5a2387cc86b4480fb862c79f11e0fd6aec288513"
+  #source = "github.com/CheckPointSW/terraform-azure-cloudguard-network-security//modules/vmss?ref=5a2387cc86b4480fb862c79f11e0fd6aec288513"
+   source  = "CheckPointSW/cloudguard-network-security/azure//modules/vmss"
+  version = "1.2.6"
 
+   
   # Authentication
   client_id       = var.appId
   client_secret   = var.password
@@ -48,11 +51,12 @@ module "vmss2" {
   backend_subnet_name          = "Backend"
 
     # One new backend Load Balancer is created.
-  deployment_mode              = "Internal" # "Standard" creates new LB, "None" reuses existing LB (must set LB pool IDs below)
+  deployment_mode              = "Standard" # "Standard" creates new LB, "None" reuses existing LB (must set LB pool IDs below)
   backend_lb_IP_address        = 90
-  frontend_lb_pool_ids         = []
+  #frontend_lb_pool_ids         = []
   frontend_load_distribution   = "Default"
-  backend_lb_pool_ids  = []
+  # backend_lb_pool_ids  = []
+  backend_load_distribution    = "Default"
 
   # Scale set
   number_of_vm_instances         = 2

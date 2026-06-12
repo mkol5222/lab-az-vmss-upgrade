@@ -181,7 +181,7 @@
 
   <div class="callout warn">
     <strong>Why not split the VNet into its own state?</strong> The CloudGuard module
-    (<code>module.example_module</code>) is monolithic &mdash; it provisions the VNet, subnets, Load Balancers
+    (<code>module.vmss1</code>) is monolithic &mdash; it provisions the VNet, subnets, Load Balancers
     <em>and</em> the VMSS together. A targeted destroy is the lowest-risk lever. The trade-off: the
     <code>vmss1/</code> configuration still declares the destroyed resources, so its state will show drift.
     <strong>Do not run <code>make vmss1</code> again</strong>, or the resources will be recreated.
@@ -233,23 +233,23 @@
   </ol>
 
   <h2>4. Resources to DESTROY <span class="badge danger">vmss1 state</span></h2>
-  <p>All addresses live in the <code>vmss1/</code> state under <code>module.example_module</code>. These are the billable items.</p>
+  <p>All addresses live in the <code>vmss1/</code> state under <code>module.vmss1</code>. These are the billable items.</p>
   <table>
     <thead>
       <tr><th>#</th><th>Terraform address (state)</th><th>Azure resource</th><th>Cost</th></tr>
     </thead>
     <tbody>
-      <tr><td>1</td><td><code>module.example_module.azurerm_linux_virtual_machine_scale_set.vmss</code></td><td>R8120 VMSS &mdash; 2&times; Standard_D4ds_v5</td><td><span class="tag cost">primary</span></td></tr>
-      <tr><td>2</td><td><code>module.example_module.azurerm_monitor_autoscale_setting.vmss_settings</code></td><td>Autoscale setting</td><td><span class="tag free">free</span></td></tr>
-      <tr><td>3</td><td><code>module.example_module.azurerm_lb.frontend_lb</code></td><td>Standard Load Balancer (frontend)</td><td><span class="tag cost">cost</span></td></tr>
-      <tr><td>4</td><td><code>module.example_module.azurerm_lb.backend_lb</code></td><td>Standard Load Balancer (backend / NVA gw)</td><td><span class="tag cost">cost</span></td></tr>
-      <tr><td>5</td><td><code>module.example_module.azurerm_lb_rule.lbnatrule_standard</code></td><td>LB rule</td><td><span class="tag free">free</span></td></tr>
-      <tr><td>6</td><td><code>module.example_module.azurerm_lb_probe.azure_lb_healprob</code></td><td>LB health probe</td><td><span class="tag free">free</span></td></tr>
-      <tr><td>7</td><td><code>module.example_module.azurerm_lb_backend_address_pool.backend_lb_pool</code></td><td>LB backend pool</td><td><span class="tag free">free</span></td></tr>
-      <tr><td>8</td><td><code>module.example_module.azurerm_lb_backend_address_pool.frontend_lb_pool</code></td><td>LB backend pool</td><td><span class="tag free">free</span></td></tr>
-      <tr><td>9</td><td><code>module.example_module.azurerm_public_ip.public_ip_lb</code></td><td>Standard public IP</td><td><span class="tag cost">cost</span></td></tr>
-      <tr><td>10</td><td><code>module.example_module.azurerm_role_assignment.custom_metrics_role_assignment</code></td><td>Role assignment (custom metrics)</td><td><span class="tag free">free</span></td></tr>
-      <tr><td>11</td><td><code>module.example_module.module.vm_boot_diagnostics_storage.azurerm_storage_account.vm_boot_diagnostics_storage</code></td><td>Boot diagnostics storage account</td><td><span class="tag cost">minor</span></td></tr>
+      <tr><td>1</td><td><code>module.vmss1.azurerm_linux_virtual_machine_scale_set.vmss</code></td><td>R8120 VMSS &mdash; 2&times; Standard_D4ds_v5</td><td><span class="tag cost">primary</span></td></tr>
+      <tr><td>2</td><td><code>module.vmss1.azurerm_monitor_autoscale_setting.vmss_settings</code></td><td>Autoscale setting</td><td><span class="tag free">free</span></td></tr>
+      <tr><td>3</td><td><code>module.vmss1.azurerm_lb.frontend_lb</code></td><td>Standard Load Balancer (frontend)</td><td><span class="tag cost">cost</span></td></tr>
+      <tr><td>4</td><td><code>module.vmss1.azurerm_lb.backend_lb</code></td><td>Standard Load Balancer (backend / NVA gw)</td><td><span class="tag cost">cost</span></td></tr>
+      <tr><td>5</td><td><code>module.vmss1.azurerm_lb_rule.lbnatrule_standard</code></td><td>LB rule</td><td><span class="tag free">free</span></td></tr>
+      <tr><td>6</td><td><code>module.vmss1.azurerm_lb_probe.azure_lb_healprob</code></td><td>LB health probe</td><td><span class="tag free">free</span></td></tr>
+      <tr><td>7</td><td><code>module.vmss1.azurerm_lb_backend_address_pool.backend_lb_pool</code></td><td>LB backend pool</td><td><span class="tag free">free</span></td></tr>
+      <tr><td>8</td><td><code>module.vmss1.azurerm_lb_backend_address_pool.frontend_lb_pool</code></td><td>LB backend pool</td><td><span class="tag free">free</span></td></tr>
+      <tr><td>9</td><td><code>module.vmss1.azurerm_public_ip.public_ip_lb</code></td><td>Standard public IP</td><td><span class="tag cost">cost</span></td></tr>
+      <tr><td>10</td><td><code>module.vmss1.azurerm_role_assignment.custom_metrics_role_assignment</code></td><td>Role assignment (custom metrics)</td><td><span class="tag free">free</span></td></tr>
+      <tr><td>11</td><td><code>module.vmss1.module.vm_boot_diagnostics_storage.azurerm_storage_account.vm_boot_diagnostics_storage</code></td><td>Boot diagnostics storage account</td><td><span class="tag cost">minor</span></td></tr>
     </tbody>
   </table>
 
@@ -260,19 +260,19 @@
       <tr><th>Terraform address (state)</th><th>Azure resource</th><th>Why keep</th></tr>
     </thead>
     <tbody>
-      <tr><td><code>module.example_module.module.vnet.azurerm_virtual_network.vnet</code></td><td>VNet <code>labvmssup-vnet</code></td><td>Shared by vmss2 + linux</td></tr>
-      <tr><td><code>module.example_module.module.vnet.azurerm_subnet.subnet</code> <span class="nowrap">[Frontend, Backend]</span></td><td>Frontend/Backend subnets</td><td>vmss2 firewalls run here</td></tr>
-      <tr><td><code>module.example_module.module.vnet.azurerm_route_table.backend</code> / <code>.frontend</code></td><td>Route tables</td><td>Attached to shared subnets</td></tr>
-      <tr><td><code>module.example_module.module.vnet.azurerm_subnet_route_table_association.backend_association</code> / <code>.frontend_association</code></td><td>Subnet &harr; RT associations</td><td>Routing for vmss2 subnet</td></tr>
-      <tr><td><code>module.example_module.module.vnet.azurerm_subnet_network_security_group_association.security_group_backend_association</code> / <code>.security_group_frontend_association</code></td><td>Subnet &harr; NSG associations</td><td>Security for vmss2 subnet</td></tr>
-      <tr><td><code>module.example_module.module.network_security_group.azurerm_network_security_group.nsg</code></td><td>NSG <code>labvmssup-vmss1-nsg</code></td><td>Used by vmss2 subnet</td></tr>
-      <tr><td><code>module.example_module.module.network_security_group.azurerm_network_security_rule.security_rule</code></td><td>NSG rule</td><td>Part of shared NSG</td></tr>
-      <tr><td><code>module.example_module.module.common.azurerm_resource_group.resource_group</code></td><td>RG <code>labvmssup-vmss1</code></td><td>Holds the VNet</td></tr>
-      <tr><td><code>module.example_module.module.common.null_resource.validate_region</code></td><td>(state helper)</td><td>No Azure cost</td></tr>
-      <tr><td><code>module.example_module.module.common.module.regions[0].azapi_client_config.current</code></td><td>(data/state helper)</td><td>No Azure cost</td></tr>
-      <tr><td><code>module.example_module.module.common.module.regions[0].azapi_resource_action.locations</code></td><td>(data/state helper)</td><td>No Azure cost</td></tr>
+      <tr><td><code>module.vmss1.module.vnet.azurerm_virtual_network.vnet</code></td><td>VNet <code>labvmssup-vnet</code></td><td>Shared by vmss2 + linux</td></tr>
+      <tr><td><code>module.vmss1.module.vnet.azurerm_subnet.subnet</code> <span class="nowrap">[Frontend, Backend]</span></td><td>Frontend/Backend subnets</td><td>vmss2 firewalls run here</td></tr>
+      <tr><td><code>module.vmss1.module.vnet.azurerm_route_table.backend</code> / <code>.frontend</code></td><td>Route tables</td><td>Attached to shared subnets</td></tr>
+      <tr><td><code>module.vmss1.module.vnet.azurerm_subnet_route_table_association.backend_association</code> / <code>.frontend_association</code></td><td>Subnet &harr; RT associations</td><td>Routing for vmss2 subnet</td></tr>
+      <tr><td><code>module.vmss1.module.vnet.azurerm_subnet_network_security_group_association.security_group_backend_association</code> / <code>.security_group_frontend_association</code></td><td>Subnet &harr; NSG associations</td><td>Security for vmss2 subnet</td></tr>
+      <tr><td><code>module.vmss1.module.network_security_group.azurerm_network_security_group.nsg</code></td><td>NSG <code>labvmssup-vmss1-nsg</code></td><td>Used by vmss2 subnet</td></tr>
+      <tr><td><code>module.vmss1.module.network_security_group.azurerm_network_security_rule.security_rule</code></td><td>NSG rule</td><td>Part of shared NSG</td></tr>
+      <tr><td><code>module.vmss1.module.common.azurerm_resource_group.resource_group</code></td><td>RG <code>labvmssup-vmss1</code></td><td>Holds the VNet</td></tr>
+      <tr><td><code>module.vmss1.module.common.null_resource.validate_region</code></td><td>(state helper)</td><td>No Azure cost</td></tr>
+      <tr><td><code>module.vmss1.module.common.module.regions[0].azapi_client_config.current</code></td><td>(data/state helper)</td><td>No Azure cost</td></tr>
+      <tr><td><code>module.vmss1.module.common.module.regions[0].azapi_resource_action.locations</code></td><td>(data/state helper)</td><td>No Azure cost</td></tr>
       <tr><td><code>random_password.admin_password</code></td><td>(state value)</td><td>No Azure cost</td></tr>
-      <tr><td><code>module.example_module.random_id.random_id</code></td><td>(state value)</td><td>No Azure cost</td></tr>
+      <tr><td><code>module.vmss1.random_id.random_id</code></td><td>(state value)</td><td>No Azure cost</td></tr>
     </tbody>
   </table>
   <div class="callout info">
@@ -299,31 +299,31 @@ traceroute -n 8.8.8.8 | head</code></pre>
   <span class="cmd-label">Step 4 &mdash; dry-run the teardown (run from vmss1/)</span>
   <pre><code>cd vmss1
 dotenvx run -f ../.env -fk ../.env.keys -- terraform plan -destroy \
-  -target='module.example_module.azurerm_monitor_autoscale_setting.vmss_settings' \
-  -target='module.example_module.azurerm_linux_virtual_machine_scale_set.vmss' \
-  -target='module.example_module.azurerm_lb_rule.lbnatrule_standard' \
-  -target='module.example_module.azurerm_lb_probe.azure_lb_healprob' \
-  -target='module.example_module.azurerm_lb_backend_address_pool.backend_lb_pool' \
-  -target='module.example_module.azurerm_lb_backend_address_pool.frontend_lb_pool' \
-  -target='module.example_module.azurerm_lb.frontend_lb' \
-  -target='module.example_module.azurerm_lb.backend_lb' \
-  -target='module.example_module.azurerm_public_ip.public_ip_lb' \
-  -target='module.example_module.azurerm_role_assignment.custom_metrics_role_assignment' \
-  -target='module.example_module.module.vm_boot_diagnostics_storage.azurerm_storage_account.vm_boot_diagnostics_storage'</code></pre>
+  -target='module.vmss1.azurerm_monitor_autoscale_setting.vmss_settings' \
+  -target='module.vmss1.azurerm_linux_virtual_machine_scale_set.vmss' \
+  -target='module.vmss1.azurerm_lb_rule.lbnatrule_standard' \
+  -target='module.vmss1.azurerm_lb_probe.azure_lb_healprob' \
+  -target='module.vmss1.azurerm_lb_backend_address_pool.backend_lb_pool' \
+  -target='module.vmss1.azurerm_lb_backend_address_pool.frontend_lb_pool' \
+  -target='module.vmss1.azurerm_lb.frontend_lb' \
+  -target='module.vmss1.azurerm_lb.backend_lb' \
+  -target='module.vmss1.azurerm_public_ip.public_ip_lb' \
+  -target='module.vmss1.azurerm_role_assignment.custom_metrics_role_assignment' \
+  -target='module.vmss1.module.vm_boot_diagnostics_storage.azurerm_storage_account.vm_boot_diagnostics_storage'</code></pre>
 
   <span class="cmd-label">Step 5 &mdash; execute the targeted destroy (run from vmss1/)</span>
   <pre><code>dotenvx run -f ../.env -fk ../.env.keys -- terraform destroy \
-  -target='module.example_module.azurerm_monitor_autoscale_setting.vmss_settings' \
-  -target='module.example_module.azurerm_linux_virtual_machine_scale_set.vmss' \
-  -target='module.example_module.azurerm_lb_rule.lbnatrule_standard' \
-  -target='module.example_module.azurerm_lb_probe.azure_lb_healprob' \
-  -target='module.example_module.azurerm_lb_backend_address_pool.backend_lb_pool' \
-  -target='module.example_module.azurerm_lb_backend_address_pool.frontend_lb_pool' \
-  -target='module.example_module.azurerm_lb.frontend_lb' \
-  -target='module.example_module.azurerm_lb.backend_lb' \
-  -target='module.example_module.azurerm_public_ip.public_ip_lb' \
-  -target='module.example_module.azurerm_role_assignment.custom_metrics_role_assignment' \
-  -target='module.example_module.module.vm_boot_diagnostics_storage.azurerm_storage_account.vm_boot_diagnostics_storage'</code></pre>
+  -target='module.vmss1.azurerm_monitor_autoscale_setting.vmss_settings' \
+  -target='module.vmss1.azurerm_linux_virtual_machine_scale_set.vmss' \
+  -target='module.vmss1.azurerm_lb_rule.lbnatrule_standard' \
+  -target='module.vmss1.azurerm_lb_probe.azure_lb_healprob' \
+  -target='module.vmss1.azurerm_lb_backend_address_pool.backend_lb_pool' \
+  -target='module.vmss1.azurerm_lb_backend_address_pool.frontend_lb_pool' \
+  -target='module.vmss1.azurerm_lb.frontend_lb' \
+  -target='module.vmss1.azurerm_lb.backend_lb' \
+  -target='module.vmss1.azurerm_public_ip.public_ip_lb' \
+  -target='module.vmss1.azurerm_role_assignment.custom_metrics_role_assignment' \
+  -target='module.vmss1.module.vm_boot_diagnostics_storage.azurerm_storage_account.vm_boot_diagnostics_storage'</code></pre>
 
   <span class="cmd-label">Step 6 &mdash; verify the result</span>
   <pre><code># vmss1 compute/LB should be gone:
